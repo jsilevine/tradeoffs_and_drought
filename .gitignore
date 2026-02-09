@@ -1,0 +1,31 @@
+## Gitignore
+
+## Emacs junk
+*~
+\#*\#
+
+## project.el
+.projects
+
+## Node junk (lsp/copilot)
+**/node_modules/
+**/package-lock.json
+**/package.json
+
+## Misc.
+*.elc
+.DS_Store
+.Rhistory
+/figures/.DS_Store
+/figures/illustrator
+
+## project files
+/data/
+/documents/
+.aider*
+
+## literate stuff etc.
+*.html
+scripts/analysis/old
+scripts/old
+scripts/org

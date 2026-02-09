@@ -1,0 +1,32 @@
+variable,estimate,se,95% CI (lower),95% CI (upper)
+(Intercept),-4.762,0.150,-5.059,-4.466
+pb(year_centered),0.006,0.001,0.004,0.008
+"pb(lon, df = 18)",0.005,0.001,0.003,0.006
+"pb(lat, df = 18)",0.014,0.005,0.005,0.023
+ba_scaled,-0.095,0.007,-0.108,-0.081
+drought_strength_scaled,-0.039,0.006,-0.050,-0.028
+prop_drought_scaled,0.046,0.007,0.032,0.059
+beta_pca_scaled,0.004,0.006,-0.008,0.015
+td_pca_scaled,0.024,0.006,0.012,0.036
+map_scaled,0.119,0.007,0.106,0.133
+mat_scaled,0.022,0.027,-0.032,0.075
+cwm_drought_pc2_scaled,-0.027,0.007,-0.041,-0.013
+cwm_growth_pc1_scaled,0.019,0.008,0.004,0.034
+elev_scaled,0.029,0.014,0.001,0.057
+stand_age_scaled,0.022,0.007,0.009,0.035
+ba_scaled:drought_strength_scaled,-0.008,0.006,-0.021,0.004
+ba_scaled:beta_pca_scaled,-0.003,0.006,-0.014,0.008
+ba_scaled:td_pca_scaled,0.002,0.006,-0.009,0.014
+(Intercept),4.480,0.010,4.461,4.500
+(Intercept),-6.261,0.323,-6.898,-5.625
+"pb(year_centered, df = 10)",-0.030,0.002,-0.035,-0.026
+"pb(lon, df = 18)",-0.035,0.001,-0.038,-0.032
+"pb(lat, df = 18)",0.056,0.010,0.036,0.076
+ba_scaled,-0.260,0.013,-0.286,-0.233
+drought_strength_scaled,0.075,0.013,0.049,0.101
+prop_drought_scaled,0.021,0.014,-0.007,0.049
+map_scaled,-0.010,0.015,-0.039,0.019
+mat_scaled,0.660,0.060,0.541,0.778
+elev_scaled,-0.172,0.030,-0.232,-0.112
+stand_age_scaled,-0.075,0.015,-0.104,-0.046
+ba_scaled:drought_strength_scaled,0.031,0.014,0.005,0.058

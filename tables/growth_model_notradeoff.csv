@@ -1,0 +1,14 @@
+Coefficient,Estimate,Std. Error,95% CI (lower),95% CI (upper)
+(Intercept),-0.158,0.021,-0.199,-0.116
+ba_scaled,-0.252,0.005,-0.263,-0.242
+drought_strength_scaled,0.034,0.006,0.023,0.045
+prop_drought_scaled,0.013,0.007,0.000,0.027
+map_scaled,0.127,0.008,0.110,0.143
+mat_scaled,-0.028,0.031,-0.089,0.032
+cwm_drought_pc2_scaled,-0.002,0.007,-0.015,0.011
+cwm_growth_pc1_scaled,-0.024,0.008,-0.040,-0.008
+range_drought_pc2_scaled,-0.006,0.006,-0.018,0.006
+range_growth_pc1_scaled,-0.049,0.006,-0.061,-0.037
+elev_scaled,-0.042,0.021,-0.083,-0.001
+stand_age_scaled,-0.197,0.006,-0.208,-0.186
+ba_scaled:drought_strength_scaled,0.081,0.005,0.070,0.091
