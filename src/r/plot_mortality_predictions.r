@@ -54,7 +54,8 @@ pred_deltamethod <- function(i, X_mu, X_nu, beta_mu, beta_nu, vcv) {
 
 
 plot_one_bezi_prediction <- function(model, data, variable, interaction = NULL,
-                                 n_points = 100, n_interaction_levels = 3) {
+                                     n_points = 100, n_interaction_levels = 3) {
+
 
     model_vars <- all.vars(formula(model))[-1]
 
@@ -219,8 +220,7 @@ plot_multiple_bezi_predictions <- function(model, data,
         plot_annotation(
             tag_levels = 'A',
             theme = theme(plot.tag = element_text(face = "bold", size = 14),
-                          plot.tag.position = c(0.05, 0.95)))  &
-        theme(legend.position = "right")
+                          plot.tag.position = c(0.05, 0.95))) 
 }
 
 

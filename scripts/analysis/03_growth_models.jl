@@ -62,6 +62,7 @@ covariates =  ["s(year)",
                "beta_pca_scaled",
                "td_pca_scaled",
                "drought_strength_scaled:ba_scaled", "ba_scaled:beta_pca_scaled", "ba_scaled:td_pca_scaled",
+               "drought_strength_scaled:td_pca_scaled", "drought_strength_scaled:beta_pca_scaled",
                "map_scaled", "mat_scaled",
                "cwm_drought_pc2_scaled", "cwm_growth_pc1_scaled",
                "range_drought_pc2_scaled", "range_growth_pc1_scaled",
@@ -83,6 +84,8 @@ cnames = rcopy(R"colnames"(growth_model_summary[Symbol("p.table")]))
 rnames = rcopy(R"rownames"(growth_model_summary[Symbol("p.table")]))
 
 summary_table = DataFrame(hcat(rnames, ptable), vcat(:Coefficient, Symbol.(cnames)))
+summary_table.ci_lower = summary_table.Estimate .- 1.96 .* summary_table[:,"Std. Error"]
+summary_table.ci_upper = summary_table.Estimate .+ 1.96 .* summary_table[:,"Std. Error"]
 CSV.write(tabledir("growth_model.csv"), summary_table)
 
 ##-------------------------------------------------------------------
@@ -117,13 +120,6 @@ PlottingUtils.plot_growth_model_predictions(growth_model, data,
     ncol = 4, align_axes = true,
     save_output = true, output_path = figdir("model_predictions", "growth", "growth_traits.pdf"),
     axis_limits = [1, 3.4])
-
-##-------------------------------------------------------------------
-## 04. Plot predictions for spatial smooth
-##-------------------------------------------------------------------
-
-PlottingUtils.plot_spatial_smooth(growth_model, data,
-    save_output = true, output_path = figdir("smooths", "growth_spatial_smooth.pdf"))
 
 ##-------------------------------------------------------------------
 ## 05. Evaluate spatial and temporal autocorrelation,

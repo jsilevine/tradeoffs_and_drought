@@ -61,6 +61,7 @@ covariates =  ["s(year)",
                "beta_pca_scaled",
                "td_pca_scaled",
                "drought_strength_scaled:ba_scaled", "ba_scaled:beta_pca_scaled", "ba_scaled:td_pca_scaled",
+               "drought_strength_scaled:beta_pca_scaled", "drought_strength_scaled:td_pca_scaled",
                "map_scaled", "mat_scaled",
                "cwm_drought_pc2_scaled", "cwm_growth_pc1_scaled",
                "elev_scaled", "stand_age_scaled"]

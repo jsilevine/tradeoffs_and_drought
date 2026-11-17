@@ -10,7 +10,7 @@ library(patchwork)
 
 plot_one_gam_prediction <- function(model, data, variable, interaction = NULL,
                                     n_points = 100, n_interaction_levels = 3,
-                                    ci_level = 0.95) {
+                                    ci_level = 0.95, lower_bound_qnt = 0.25, upper_bound_qnt = 0.95) {
 
   variable_name_dict <- list(
     "beta_pca" = "Tradeoff slope",
@@ -44,14 +44,14 @@ plot_one_gam_prediction <- function(model, data, variable, interaction = NULL,
   int_s <- if (!is.null(interaction)) paste0(interaction, "_scaled") else NULL
 
   # Sequence for main variable
-  pred_data[[var_s]] <- rep(seq(quantile(data[[var_s]], 0.25, na.rm = TRUE),
-                                quantile(data[[var_s]], 0.95, na.rm = TRUE),
+  pred_data[[var_s]] <- rep(seq(quantile(data[[var_s]], lower_bound_qnt, na.rm = TRUE),
+                                quantile(data[[var_s]], upper_bound_qnt, na.rm = TRUE),
                                 length.out = n_points),
                             times = ifelse(is.null(interaction), 1, n_interaction_levels))
 
   if (!is.null(interaction)) {
-    interaction_levels <- seq(quantile(data[[int_s]], 0.25, na.rm = TRUE),
-                              quantile(data[[int_s]], 0.95, na.rm = TRUE),
+    interaction_levels <- seq(quantile(data[[int_s]], lower_bound_qnt, na.rm = TRUE),
+                              quantile(data[[int_s]], upper_bound_qnt, na.rm = TRUE),
                               length.out = n_interaction_levels)
     pred_data[[int_s]] <- rep(interaction_levels, each = n_points)
   }
@@ -188,7 +188,6 @@ plot_multiple_gam_predictions <- function(model, data,
   wrap_plots(plots, ncol = ncol, guides = "collect") +
     plot_annotation(tag_levels = "A",
                     theme = theme(plot.tag = element_text(face = "bold", size = 14),
-                                  plot.tag.position = c(0.05, 0.95)))  &
-    theme(legend.position = "right")
+                                  plot.tag.position = c(0.05, 0.95)))
 }
 

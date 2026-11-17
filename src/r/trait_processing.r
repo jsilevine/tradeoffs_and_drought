@@ -320,3 +320,5 @@ estimate_tradeoffs <- function(states, gm_data, traits, trait_vars, output_cols,
   return(out)
 
 }
+
+

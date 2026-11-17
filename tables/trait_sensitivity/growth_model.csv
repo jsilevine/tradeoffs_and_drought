@@ -1,0 +1,20 @@
+Coefficient,Estimate,Std. Error,ci_lower,ci_upper
+(Intercept),-0.151,0.021,-0.193,-0.110
+ba_scaled,-0.263,0.006,-0.275,-0.251
+drought_strength_scaled,0.039,0.006,0.027,0.051
+prop_drought_scaled,0.012,0.007,-0.003,0.026
+beta_pca_scaled,-0.031,0.007,-0.044,-0.018
+td_pca_scaled,-0.026,0.007,-0.040,-0.013
+map_scaled,0.104,0.009,0.086,0.122
+mat_scaled,-0.028,0.032,-0.091,0.035
+cwm_drought_pc2_scaled,-0.018,0.007,-0.032,-0.004
+cwm_growth_pc1_scaled,-0.024,0.009,-0.042,-0.006
+range_drought_pc2_scaled,0.005,0.007,-0.008,0.018
+range_growth_pc1_scaled,-0.064,0.008,-0.079,-0.049
+elev_scaled,-0.046,0.022,-0.090,-0.002
+stand_age_scaled,-0.186,0.006,-0.198,-0.173
+ba_scaled:drought_strength_scaled,0.083,0.006,0.072,0.095
+ba_scaled:beta_pca_scaled,-0.003,0.005,-0.013,0.007
+ba_scaled:td_pca_scaled,-0.020,0.005,-0.031,-0.010
+drought_strength_scaled:beta_pca_scaled,-0.003,0.006,-0.014,0.009
+drought_strength_scaled:td_pca_scaled,-0.004,0.006,-0.015,0.007

@@ -36,20 +36,20 @@ plot_tradeoff_drivers <- function(var, model, data, bootstrap_results,
   }
 
 
-  pf <- tryCatch(
-    predict(model, newdata = pdata, type = "response"),
-    error = function(e) NULL
-  )
-  if (!is.null(pf)) {
-    if (is.matrix(pf) && ncol(pf) >= 1) {
-      pdata$fit <- as.numeric(pf[,1])
-    } else {
-      pdata$fit <- as.numeric(pf)
-    }
-  } else {
-    warning("predict() failed; using bootstrap mean coefficients to compute fit.")
-    pdata$fit <- NA_real_
-  }
+  ## pf <- tryCatch(
+  ##   predict(model, newdata = pdata, type = "response"),
+  ##   error = function(e) NULL
+  ## )
+  ## if (!is.null(pf)) {
+  ##   if (is.matrix(pf) && ncol(pf) >= 1) {
+  ##     pdata$fit <- as.numeric(pf[,1])
+  ##   } else {
+  ##     pdata$fit <- as.numeric(pf)
+  ##   }
+  ## } else {
+  ##   warning("predict() failed; using bootstrap mean coefficients to compute fit.")
+  ##   pdata$fit <- NA_real_
+  ## }
 
   br_mat <- as.data.frame(bootstrap_results)
   terms_no_resp <- stats::delete.response(stats::terms(model))
@@ -66,6 +66,10 @@ plot_tradeoff_drivers <- function(var, model, data, bootstrap_results,
 
   qfun <- function(v) stats::quantile(v, probs = quantiles, na.rm = TRUE, names = FALSE)
   qmat <- apply(preds_mat, 2, qfun)  # matrix: length(quantiles) x n_grid
+
+  coef_med <- apply(Bmat, 2, median, na.rm = TRUE)
+  pdata$fit <- as.numeric(X %*% coef_med)
+  
   lower_raw <- as.numeric(qmat[1, ])
   upper_raw <- as.numeric(qmat[2, ])
 

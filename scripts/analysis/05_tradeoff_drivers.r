@@ -11,7 +11,7 @@
 ## Load required libraries
 invisible(lapply(c("mgcv", "ggplot2", "dplyr", "sf", "gstat", "sp",
                    "terra", "patchwork", "here", "scales", "RColorBrewer",
-                   "parallel"), library, character.only = TRUE))
+                   "parallel", "terra"), library, character.only = TRUE))
 
 ## dependencies
 source(here("src", "r", "maps.r"))
@@ -271,15 +271,31 @@ ggsave(here("figures", "tradeoff_drivers", "tradeoff_by_ecoregion.pdf"),
 ## 04. Quantify the drivers of tradeoff strength and adherence                                                        
 ##--------------------------------------------------------------
 
+## load aridity index data
+
+ai <- rast(here("data", "aridity_index", "ai_v31_yr.tif"))
+reduced_data_spat <- st_as_sf(reduced_data, coords = c("lon", "lat"), crs = 4326)
+full_data_spat <- st_as_sf(full_data, coords = c("lon", "lat"), crs = 4326)
+
+vals <- extract(ai, reduced_data_spat)
+vals <- vals * 0.0001
+reduced_data$ai <- vals[, 2]
+reduced_data$ai_scaled <- (reduced_data$ai - mean(reduced_data$ai, na.rm = TRUE)) / sd(reduced_data$ai, na.rm = TRUE)
+
+vals <- extract(ai, full_data_spat)
+vals <- vals * 0.0001
+full_data$ai <- vals[, 2]
+full_data$ai_scaled <- (full_data$ai - mean(full_data$ai, na.rm = TRUE)) / sd(full_data$ai, na.rm = TRUE)
+
 ## log transform TD (adherence) and approximate SE on log scale (delta method)
 reduced_data$log_td <- log(reduced_data$td_pca)
 reduced_data$log_td_se <- reduced_data$td_se_pca / reduced_data$td_pca
 
 ## weighted linear model for log(TD) ~ predictors (weights = 1 / var)
 td_model <- lm(log_td ~
-                  map_scaled +
-                  mat_scaled +
-                  stand_age_scaled,
+                 ai_scaled +
+                 mat_scaled +
+                 stand_age_scaled,
                 data = reduced_data,
                 weights = 1 / (log_td_se^2))
 summary(td_model)
@@ -287,11 +303,11 @@ summary(td_model)
 ## block bootstrap for TD drivers
 boot_td <- bootstrap_model_blocks(
   full_data = reduced_data,
-  formula = log_td ~ map_scaled + mat_scaled + stand_age_scaled,
+  formula = log_td ~ ai_scaled + mat_scaled + stand_age_scaled,
   fitfun = lm,
   filepath = here("data", "bootstraps", "bootstrap_coefs_tddrivers.csv"),
   weight_var = "log_td_se",
-  fields = c("x", "y", "log_td", "map_scaled", "mat_scaled", "stand_age_scaled", "log_td_se"),
+  fields = c("x", "y", "log_td", "ai_scaled", "mat_scaled", "stand_age_scaled", "log_td_se"),
   N = 400,
   nbox_per_draw = 10,
   mc.cores = 7
@@ -302,7 +318,7 @@ boot_td <- read.csv(here("data", "bootstraps", "bootstrap_coefs_tddrivers.csv"))
 colnames(boot_td)[1] <- "(Intercept)"
 
 ## summarize bootstrap distribution
-td_summary <- data.frame(coef = c("(Intercept)", "map_scaled", "mat_scaled", "stand_age_scaled"),
+td_summary <- data.frame(coef = c("(Intercept)", "ai_scaled", "mat_scaled", "stand_age_scaled"),
                          mean = NA_real_,
                          lower = NA_real_,
                          upper = NA_real_)
@@ -318,7 +334,7 @@ write.csv(td_summary, here("tables", "td_drivers_model.csv"))
 
 ## fit model for tradeoff strength (beta)
 beta_model <- lm(beta_pca ~
-                  map_scaled +
+                  ai_scaled +
                   mat_scaled +
                   stand_age_scaled,
                  data = reduced_data,
@@ -328,11 +344,11 @@ summary(beta_model)
 ## block bootstrap for beta drivers
 boot_beta <- bootstrap_model_blocks(
   full_data = reduced_data,
-  formula = beta_pca ~ map_scaled + mat_scaled + stand_age_scaled,
+  formula = beta_pca ~ ai_scaled + mat_scaled + stand_age_scaled,
   fitfun = lm,
   filepath = here("data", "bootstraps", "bootstrap_coefs_betadrivers.csv"),
   weight_var = "se_pca",
-  fields = c("x", "y", "beta_pca", "map_scaled", "mat_scaled", "stand_age_scaled", "se_pca"),
+  fields = c("x", "y", "beta_pca", "ai_scaled", "mat_scaled", "stand_age_scaled", "se_pca"),
   N = 400,
   nbox_per_draw = 10,
   mc.cores = 7
@@ -343,7 +359,7 @@ boot_beta <- read.csv(here("data", "bootstraps", "bootstrap_coefs_betadrivers.cs
 colnames(boot_beta)[1] <- "(Intercept)"
 
 ## summarize bootstrap distribution
-beta_summary <- data.frame(coef = c("(Intercept)", "map_scaled", "mat_scaled", "stand_age_scaled"),
+beta_summary <- data.frame(coef = c("(Intercept)", "ai_scaled", "mat_scaled", "stand_age_scaled"),
                            mean = NA_real_,
                            lower = NA_real_,
                            upper = NA_real_)
@@ -426,34 +442,34 @@ ggsave(here("figures", "tradeoff_drivers", "variograms_tradeoff_drivers.png"),
 
 
 ## plot estimated effects, incorporating bootstrap uncertainties
-p1 <- plot_effect_simple("map_scaled", beta_model, full_data, boot_beta,
-                  orig_var = "map",
+p1 <- plot_tradeoff_drivers("ai_scaled", beta_model, full_data, boot_beta,
+                  orig_var = "ai",
                   xlab = "",
                   ylab = "Tradeoff Slope",
-                  ylim = c(-2.1, 1.1),
-                  xlim = c(250, 2000),
+                  ylim = c(-3, 1.1),
+                  xlim = c(0, 1.5),
                   n = 300,
                   span = 0.5,
                   fill = "#94d2bd",
                   line_color = "#015f73")
 p1
 
-p2 <- plot_effect_simple("mat_scaled", beta_model, full_data, boot_beta,
+p2 <- plot_tradeoff_drivers("mat_scaled", beta_model, full_data, boot_beta,
                   orig_var = "mat",
             xlab = "",
             ylab = "",
             n = 300,
-            ylim = c(-2.1, 1.1),
+            ylim = c(-3, 1.1),
             span = 1,
             fill = "#94d2bd",
             line_color = "#015f73")
 p2
 
-p3 <- plot_effect_simple("stand_age_scaled", beta_model, full_data, boot_beta,
+p3 <- plot_tradeoff_drivers("stand_age_scaled", beta_model, full_data, boot_beta,
                   orig_var = "stand_age",
                   xlab = "",
                   ylab = "",
-                  ylim = c(-2.2, 1.1),
+                  ylim = c(-3, 1.1),
                   xlim = c(0, 300),
                   span = 1,
                   n = 300,
@@ -461,12 +477,12 @@ p3 <- plot_effect_simple("stand_age_scaled", beta_model, full_data, boot_beta,
                   line_color = "#015f73")
 p3
 
-p4 <- plot_effect_simple("map_scaled", td_model, full_data, boot_td,
-                         orig_var = "map",
-                         xlab = "Mean Annual Precipitation (mm)",
-                         ylab = "Tradeoff Adherence",
-                         ylim = c(0, 0.7),
-                         xlim = c(250, 2000),
+p4 <- plot_tradeoff_drivers("ai_scaled", td_model, full_data, boot_td,
+                         orig_var = "ai",
+                         xlab = "Aridity Index",
+                         ylab = "Tradeoff Deviation",
+                         ylim = c(0, 0.5),
+                         xlim = c(0, 1.5),
                          n = 100,
                          span = 1,
                          delog = TRUE,
@@ -474,22 +490,22 @@ p4 <- plot_effect_simple("map_scaled", td_model, full_data, boot_td,
                          line_color = "#6a4d94")
 p4
 
-p5 <- plot_effect_simple("mat_scaled", td_model, full_data, boot_td,
+p5 <- plot_tradeoff_drivers("mat_scaled", td_model, full_data, boot_td,
                   orig_var = "mat",
                   xlab = "Mean Annual Temperature (C)",
                   ylab = "",
-                  ylim = c(0, 0.7),
+                  ylim = c(0, 0.5),
                   delog = TRUE,
                   span = 1,
                   fill = "#c7b5d8",
                   line_color = "#6a4d94")
 p5
 
-p6 <- plot_effect_simple("stand_age_scaled", td_model, full_data, boot_td,
+p6 <- plot_tradeoff_drivers("stand_age_scaled", td_model, full_data, boot_td,
                   orig_var = "stand_age",
                   xlab = "Stand Age (years)",
             ylab = "",
-            ylim = c(0, 0.7),
+            ylim = c(0, 0.5),
             n = 300,
             span = 0.1,
             xlim = c(0, 300),
@@ -503,3 +519,65 @@ p1 + p2 + p3 + p4 + p5 + p6 + plot_layout(ncol = 3)
 ggsave(here("figures", "tradeoff_drivers", "tradeoff_drivers_effects.pdf"),
        width = 11, height = 7, dpi = 300)
 
+reduced_data$mat <- reduced_data$mat_scaled * sd(full_data$mat, na.rm = TRUE) + mean(full_data$mat, na.rm = TRUE)
+reduced_data$stand_age <- reduced_data$stand_age_scaled * sd(full_data$stand_age, na.rm = TRUE) + mean(full_data$stand_age, na.rm = TRUE)
+
+## figures with data included for SI
+p1$layers <- c(
+  list(geom_point(data = reduced_data,
+                  aes(x = ai, y = beta_pca),
+                  alpha = 0.2, size = 1.5)),
+  p1$layers
+)
+p1 <- p1 + scale_y_continuous(limits = c(-3, 1.1), expand = c(0,0))
+p1
+
+p2$layers <- c(
+  list(geom_point(data = reduced_data,
+                  aes(x = mat, y = beta_pca),
+                  alpha = 0.2, size = 1.5)),
+  p2$layers
+)
+p2 <- p2 + scale_y_continuous(limits = c(-3, 1.1), expand = c(0,0))
+p2
+
+p3$layers <- c(
+  list(geom_point(data = reduced_data,
+                  aes(x = stand_age, y = beta_pca),
+                  alpha = 0.2, size = 1.5)),
+  p3$layers
+)
+p3 <- p3 + scale_y_continuous(limits = c(-3, 1.1), expand = c(0,0))
+p3
+
+p4$layers <- c(
+  list(geom_point(data = reduced_data,
+                  aes(x = ai, y = td_pca),
+                  alpha = 0.2, size = 1.5)),
+  p4$layers
+)
+p4 <- p4 + scale_y_continuous(limits = c(0, 0.6), expand = c(0,0))
+p4
+
+p5$layers <- c(
+  list(geom_point(data = reduced_data,
+                  aes(x = mat, y = td_pca),
+                  alpha = 0.2, size = 1.5)),
+  p5$layers
+)
+p5 <- p5 + scale_y_continuous(limits = c(0, 0.6), expand = c(0, 0))
+p5
+
+p6$layers <- c(
+  list(geom_point(data = reduced_data,
+                  aes(x = stand_age, y = td_pca),
+                  alpha = 0.2, size = 1.5)),
+  p6$layers
+)
+p6 <- p6 + scale_y_continuous(limits = c(0, 0.6), expand = c(0, 0))
+p6
+
+p1 + p2 + p3 + p4 + p5 + p6 + plot_layout(ncol = 3)
+
+ggsave(here("figures", "tradeoff_drivers", "tradeoff_drivers_effects_wpoints.pdf"),
+       width = 11, height = 7, dpi = 300)

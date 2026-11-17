@@ -1,0 +1,5 @@
+coef,mean,lower,upper
+(Intercept),-1.240,-1.691,-0.633
+ai_scaled,0.289,0.050,0.802
+mat_scaled,0.100,-0.069,0.200
+stand_age_scaled,-0.009,-0.107,0.018

@@ -85,6 +85,17 @@ traits = project_pca(
     pc_names = [:growth_pc1, :growth_pc2]
 );
 
+traits.log_p50 = log.(traits.p50);
+traits.log_rdmax = log.(traits.rdmax);
+
+filter_data = dropmissing(traits[:, [:drought_pc2, :log_p50, :log_rdmax, :p50, :rdmax]]);
+cor(filter_data.drought_pc2, filter_data.log_p50)
+cor(filter_data.drought_pc2, filter_data.log_rdmax)
+
+cor(filter_data.drought_pc2, filter_data.p50)
+cor(filter_data.drought_pc2, filter_data.rdmax)
+
+
 ## visualize overall tradeoff in PCA space
 R"""
 library(ggplot2)

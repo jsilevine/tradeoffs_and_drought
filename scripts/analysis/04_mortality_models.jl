@@ -64,6 +64,8 @@ mu_fixed = [
     "td_pca_scaled",
     "ba_scaled:beta_pca_scaled",
     "ba_scaled:td_pca_scaled",
+    "drought_strength_scaled:beta_pca_scaled",
+    "drought_strength_scaled:td_pca_scaled",
     "map_scaled", "mat_scaled",
     "cwm_drought_pc2_scaled", "cwm_growth_pc1_scaled",
     "range_drought_pc2_scaled", "range_growth_pc1_scaled",
@@ -123,9 +125,24 @@ for row in eachrow(mortality_summary)
 end
 
 mortality_summary = mortality_summary[:, [:variable, :component, :estimate, :se, :t_value, :p_value]]
+mortality_summary.ci_lower = mortality_summary.estimate .- 1.96 .* mortality_summary.se
+mortality_summary.ci_upper = mortality_summary.estimate .+ 1.96 .* mortality_summary.se
 
 CSV.write(tabledir("mortality_model_summary.csv"), mortality_summary)
 
+mortality_summary = CSV.read(tabledir("mortality_model_summary.csv"), DataFrame)
+
+mortality_summary[mortality_summary.variable .== "beta_pca_scaled", :estimate] * std(skipmissing(data.beta_pca)) 
+mortality_summary[mortality_summary.variable .== "beta_pca_scaled", :ci_lower] * std(skipmissing(data.beta_pca)) 
+mortality_summary[mortality_summary.variable .== "beta_pca_scaled", :ci_upper] * std(skipmissing(data.beta_pca)) 
+
+mortality_summary[mortality_summary.variable .== "td_pca_scaled", :estimate] * std(skipmissing(data.beta_pca)) 
+mortality_summary[mortality_summary.variable .== "td_pca_scaled", :ci_lower] * std(skipmissing(data.beta_pca)) 
+mortality_summary[mortality_summary.variable .== "td_pca_scaled", :ci_upper] * std(skipmissing(data.beta_pca))
+
+mortality_summary[mortality_summary.variable .== "drought_strength_scaled", :estimate] * std(skipmissing(data.beta_pca)) 
+mortality_summary[mortality_summary.variable .== "drought_strength_scaled", :ci_lower] * std(skipmissing(data.beta_pca)) 
+mortality_summary[mortality_summary.variable .== "drought_strength_scaled", :ci_upper] * std(skipmissing(data.beta_pca))
 
 ##-------------------------------------------------------------------
 ## 03. Plot mortality model results

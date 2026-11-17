@@ -1,7 +1,7 @@
-Coefficient,Estimate,Std. Error,95% CI (lower),95% CI (upper)
-(Intercept),-0.158,0.021,-0.199,-0.116
+Coefficient,Estimate,Std. Error,ci_lower,ci_upper
+(Intercept),-0.158,0.021,-0.199,-0.117
 ba_scaled,-0.252,0.005,-0.263,-0.242
-drought_strength_scaled,0.034,0.006,0.023,0.045
+drought_strength_scaled,0.034,0.006,0.024,0.045
 prop_drought_scaled,0.013,0.007,0.000,0.027
 map_scaled,0.127,0.008,0.110,0.143
 mat_scaled,-0.028,0.031,-0.089,0.032
